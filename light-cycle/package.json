@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@pixi/filter-glow": "^5.2.1",
 		"@pixi/particle-emitter": "^5.0.8",
+		"@sveltejs/adapter-static": "^3.0.8",
 		"pixi.js": "^8.6.6"
 	}
 }
