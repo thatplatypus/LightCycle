@@ -4,6 +4,7 @@ import type { Filter } from 'pixi.js';
 import { get } from 'svelte/store';
 import { gameState } from '$lib/stores/game-state';
 import { settings } from '$lib/stores/settings';
+import { debug } from '$lib/utils/debug';
 
 export enum Direction {
     UP,
@@ -48,7 +49,7 @@ export class Player {
         this.speed = speed;
         this.color = parseInt(initialColor.replace('#', ''), 16);
         
-        console.log(`Player ${playerNumber} initialized:`, {
+        debug.log('Player initialized:', {
             initialSpeed: speed,
             initialColor,
             parsedColor: this.color
@@ -73,7 +74,7 @@ export class Player {
         this.initializeGraphics();
 
         // Add debug logging for scoring
-        console.log(`Player ${playerNumber} scoring initialized:`, {
+        debug.log(`Player ${playerNumber} scoring initialized:`, {
             position: this.position,
             lastPosition: this.lastPosition,
             distanceTraveled: this.distanceTraveled
@@ -81,7 +82,7 @@ export class Player {
 
         // Subscribe to settings changes AFTER initialization
         this.unsubscribe = settings.subscribe(newSettings => {
-            console.log(`Player ${playerNumber} settings changed:`, {
+            debug.log(`Player ${playerNumber} settings changed:`, {
                 newSpeed: newSettings.playerSpeed,
                 currentSpeed: this.speed,
                 newColor: playerNumber === 1 ? newSettings.player1Color : newSettings.player2Color,
@@ -288,7 +289,7 @@ export class Player {
         const settingsStore = get(settings);
 
         // Debug game mode
-        console.log('Game mode check:', {
+        debug.log('Game mode check:', {
             gameMode: settingsStore.gameMode,
             opponent: gameStateValue.opponent,
             isSinglePlayer: settingsStore.gameMode === 'single' && !gameStateValue.opponent
@@ -331,7 +332,7 @@ export class Player {
             this.distanceTraveled += distance;
             
             // Debug log scoring updates
-            console.log('Score update:', {
+            debug.log('Score update:', {
                 distance,
                 totalDistance: this.distanceTraveled,
                 currentScore: gameStateValue.score,

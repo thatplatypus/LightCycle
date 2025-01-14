@@ -1,7 +1,7 @@
 <script lang="ts">
     import { gameState, restartGame } from '$lib/stores/game-state';
     import TronButton from '$lib/components/ui/tron-button.svelte';
-    import { Settings, Pause, Play, Home } from 'lucide-svelte';
+    import { Settings, Pause, Play, Home, RefreshCw } from 'lucide-svelte';
     import SettingsDialog from './SettingsDialog.svelte';
     import { onMount } from 'svelte';
     import { get } from 'svelte/store';
@@ -50,7 +50,7 @@
 
 <header class="fixed top-0 left-0 right-0 p-4 flex justify-between items-center z-50">
     <div class="flex items-center gap-4">
-        <TronButton on:click={returnToMenu}>
+        <TronButton title="Main Menu" on:click={returnToMenu}>
             <Home class="w-4 h-4" />
         </TronButton>
         <div class="text-2xl font-bold text-primary">
@@ -72,7 +72,7 @@
     </div>
     
     <div class="flex gap-2">
-        <TronButton on:click={togglePause}>
+        <TronButton title="Pause/Resume" on:click={togglePause}>
             {#if $gameState.isPaused}
                 <Play class="w-4 h-4" />
             {:else}
@@ -80,11 +80,11 @@
             {/if}
         </TronButton>
         
-        <TronButton on:click={handleReset}>
-            Reset
+        <TronButton title="Refresh" on:click={handleReset}>
+            <RefreshCw class="w-4 h-4" />
         </TronButton>
         
-        <TronButton on:click={handleSettingsClick}>
+        <TronButton title="Settings" on:click={handleSettingsClick}>
             <Settings class="w-4 h-4" />
         </TronButton>
     </div>

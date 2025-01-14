@@ -43,7 +43,6 @@ vi.mock('@pixi/filter-glow', () => ({
     }
 })); 
 
-// Mock our UI components
 vi.mock('$lib/components/ui/button', () => ({
     default: {
         render(node: any) {
@@ -53,4 +52,4 @@ vi.mock('$lib/components/ui/button', () => ({
             return button;
         }
     }
-})); 
+}));
