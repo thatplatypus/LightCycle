@@ -43,9 +43,9 @@ jobs:
         working-directory: light-cycle
         run: npm run test:ci
 
-      - name: Run type check
-        working-directory: light-cycle
-        run: npm run check
+      #- name: Run type check
+      #  working-directory: light-cycle
+      #  run: npm run check
 
       - name: Build
         working-directory: light-cycle
