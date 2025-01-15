@@ -289,11 +289,27 @@ export class GameEngine {
         }
     }
 
+    private lerpColor(color1: number, color2: number, t: number): number {
+        const r1 = (color1 >> 16) & 0xFF;
+        const g1 = (color1 >> 8) & 0xFF;
+        const b1 = color1 & 0xFF;
+
+        const r2 = (color2 >> 16) & 0xFF;
+        const g2 = (color2 >> 8) & 0xFF;
+        const b2 = color2 & 0xFF;
+
+        const r = Math.round(r1 + (r2 - r1) * t);
+        const g = Math.round(g1 + (g2 - g1) * t);
+        const b = Math.round(b1 + (b2 - b1) * t);
+
+        return (r << 16) | (g << 8) | b;
+    }
+
     private drawBackground() {
         const grid = new PIXI.Graphics();
         grid.zIndex = -1;
         
-        const gridSize = 40;  // Slightly smaller grid
+        const gridSize = 40;
         const width = this.app.screen.width;
         const height = this.app.screen.height;
 
@@ -301,7 +317,7 @@ export class GameEngine {
         grid.stroke({ 
             width: 1,
             color: 0x00FFFF,
-            alpha: 0.2,        // More subtle base grid
+            alpha: 0.2,
             alignment: 0.5,
             native: true
         });
@@ -318,16 +334,35 @@ export class GameEngine {
             grid.lineTo(width, y);
         }
 
-        // Draw major grid lines
+        // Draw glow for major lines first
         grid.stroke({ 
-            width: 2,
+            width: 6,
             color: 0x00FFFF,
-            alpha: 0.4,        // More visible major lines
+            alpha: 0.1,
             alignment: 0.5,
             native: true
         });
 
-        // Major grid lines every 4 cells
+        // Major grid lines with glow
+        for (let x = 0; x <= width; x += gridSize * 4) {
+            grid.moveTo(x, 0);
+            grid.lineTo(x, height);
+        }
+        for (let y = 0; y <= height; y += gridSize * 4) {
+            grid.moveTo(0, y);
+            grid.lineTo(width, y);
+        }
+
+        // Draw major grid lines on top
+        grid.stroke({ 
+            width: 2,
+            color: 0x00FFFF,
+            alpha: 0.4,
+            alignment: 0.5,
+            native: true
+        });
+
+        // Major grid lines
         for (let x = 0; x <= width; x += gridSize * 4) {
             grid.moveTo(x, 0);
             grid.lineTo(x, height);
@@ -338,8 +373,6 @@ export class GameEngine {
         }
 
         this.app.stage.addChild(grid);
-
-        // Remove debug elements now that we can see the grid
     }
 
     private handleGameOver(winner: 'player1' | 'player2' | 'draw'): void {
