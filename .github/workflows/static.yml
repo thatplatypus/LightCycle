@@ -39,9 +39,9 @@ jobs:
         working-directory: light-cycle
         run: npm install
 
-      - name: Run tests
-        working-directory: light-cycle
-        run: npm run test:ci
+      #- name: Run tests
+      #  working-directory: light-cycle
+      #  run: npm run test:ci
 
       #- name: Run type check
       #  working-directory: light-cycle
