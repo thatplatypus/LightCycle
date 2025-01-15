@@ -585,7 +585,51 @@ video {
 
 /* Add the grid background */
 
+.tron-grid {
+  background-color: black;
+  background-image: 
+        linear-gradient(0deg, 
+            transparent 0px, 
+            var(--grid-color) var(--line-width), 
+            transparent var(--line-spread)
+        ),
+        linear-gradient(90deg, 
+            transparent 0px, 
+            var(--grid-color) var(--line-width), 
+            transparent var(--line-spread)
+        );
+  background-size: var(--grid-size) var(--grid-size);
+  height: 200%;
+  perspective: 100px;
+  position: relative;
+  transform-origin: center top;
+  animation: flyIn 1600ms ease-in-out 300ms forwards;
+}
+
 /* Light wall effects */
+
+.tron-grid::before,
+.tron-grid::after {
+  content: '';
+  display: block;
+  position: absolute;
+  background: var(--grid-color);
+  height: 30px;
+  width: 200px;
+  transform: rotateX(-10deg);
+  opacity: 0;
+  top: 32px;
+  box-shadow: 0 -5px 15px var(--grid-color);
+  animation: lightWall 5s ease-in 2000ms forwards;
+}
+
+.tron-grid::after {
+  right: 0;
+  height: 50px;
+  top: 282px;
+  box-shadow: 0 -10px 50px 2px var(--grid-color);
+  animation: lightWall 5s ease-in 3200ms forwards;
+}
 
 @keyframes flyIn {
   from {
@@ -735,6 +779,10 @@ body {
   z-index: 20;
 }
 
+.z-0 {
+  z-index: 0;
+}
+
 .col-span-3 {
   grid-column: span 3 / span 3;
 }
@@ -783,6 +831,10 @@ body {
 
 .contents {
   display: contents;
+}
+
+.hidden {
+  display: none;
 }
 
 .h-10 {
@@ -981,6 +1033,18 @@ body {
   --tw-space-y-reverse: 0;
   margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
+}
+
+.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
+
+.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }
 
 .overflow-hidden {
@@ -1258,6 +1322,10 @@ body {
 
 .blur {
   --tw-blur: blur(8px);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.filter {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 

@@ -6,6 +6,7 @@
     import { get } from 'svelte/store';
     import TronButton from '$lib/components/ui/tron-button.svelte';
     import { restartGame } from '$lib/stores/game-state';
+    import { cleanupGame } from '$lib/stores/game-state';
 
     // Get winner message based on game mode and winner
     $: winnerMessage = () => {
@@ -27,18 +28,11 @@
     };
 
     function returnToMenu() {
-        gameState.set({
-            isPlaying: false,
-            isPaused: false,
-            gameOver: false,
-            score: 0,
-            isResetting: false,
-            opponent: null
-        });
+        cleanupGame();
     }
 
-    function playAgain() {
-        restartGame();
+    async function playAgain() {
+        await restartGame();
     }
 </script>
 

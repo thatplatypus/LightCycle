@@ -103,20 +103,31 @@ export class Player {
     private createParticle(): void {
         const particle = new PIXI.Graphics();
         
-        // Much larger particles
+        // Create a more geometric, energy-like particle
         particle
-            .fill({ color: this.color })
-            .circle(0, 0, 12)                   // Very large outer circle
-            .fill({ color: this.color, alpha: 0.5 })
-            .circle(0, 0, 8)                    // Medium circle
-            .fill({ color: 0xFFFFFF })
-            .circle(0, 0, 4);                   // Bright white center
+            // Outer glow
+            .fill({ color: this.color, alpha: 0.2 })
+            .rect(-8, -8, 16, 16)  // Square base
+            // Inner geometric shape
+            .fill({ color: this.color, alpha: 0.6 })
+            .moveTo(-6, 0)
+            .lineTo(0, -6)
+            .lineTo(6, 0)
+            .lineTo(0, 6)
+            .closePath()
+            // Bright core
+            .fill({ color: 0xFFFFFF, alpha: 0.8 })
+            .rect(-2, -2, 4, 4);   // Small bright center
+        
+        // Rotate randomly for more dynamic effect
+        particle.rotation = Math.random() * Math.PI * 2;
         
         particle.position.set(this.position.x, this.position.y);
         
+        // More controlled particle movement
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 1.5 + 0.5;  // Slower for better visibility
-        const maxLife = 1;  // Longer life
+        const speed = Math.random() * 1 + 0.5;  // Slightly slower, more controlled speed
+        const maxLife = 0.8;  // Shorter life for snappier effect
         
         this.particles.push({
             sprite: particle,
@@ -134,9 +145,11 @@ export class Player {
     }
 
     private updateParticles(delta: number): void {
-        // Create particles more frequently
-        if (Math.random() < 0.2) {  // 20% chance each frame
+        // Create particles less frequently but more consistently
+        if (Math.random() < 0.15) {  // 15% chance each frame
             this.createParticle();
+            // Create a second particle nearby for more density
+            if (Math.random() < 0.5) this.createParticle();
         }
 
         for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -150,9 +163,21 @@ export class Player {
                 this.particles.splice(i, 1);
             } else {
                 const lifeRatio = particle.life / particle.maxLife;
-                particle.sprite.alpha = lifeRatio * 0.6;  // Fade out smoothly
-                particle.sprite.position.x += particle.velocity.x;
+                
+                // More dramatic fade out
+                particle.sprite.alpha = lifeRatio * 0.8;
+                
+                // Add rotation for energy effect
+                particle.sprite.rotation += 0.1 * delta;
+                
+                // Slightly curved movement
+                const curve = Math.sin(particle.life * 5) * 0.2;
+                particle.sprite.position.x += particle.velocity.x + curve;
                 particle.sprite.position.y += particle.velocity.y;
+                
+                // Scale down as they fade
+                const scale = 0.8 + (lifeRatio * 0.2);
+                particle.sprite.scale.set(scale);
             }
         }
     }

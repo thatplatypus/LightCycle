@@ -3,37 +3,88 @@
     import { Label } from "$lib/components/ui/label";
     import { Switch } from "$lib/components/ui/switch";
     import { Button } from "$lib/components/ui/button";
-    import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "$lib/components/ui/select/index";
-    import { Slider } from "$lib/components/ui/slider";
     import { Input } from "$lib/components/ui/input";
+    import { Slider } from "$lib/components/ui/slider";
     import { settings } from '$lib/stores/settings';
     import { gameState } from '$lib/stores/game-state';
+    import TronButton from './ui/tron-button.svelte';
+    import { Volume2, VolumeX } from 'lucide-svelte';
 
     export let open = false;
     export let onOpenChange: (open: boolean) => void;
 
-    let tempSettings = { ...$settings };  // Create a temporary copy
+    // Initialize with default audio settings
+    let tempSettings = {
+        ...$settings,
+        audio: {
+            masterVolume: 0.7,
+            musicVolume: 0.5,
+            effectsVolume: 0.8,
+            musicEnabled: true,
+            effectsEnabled: true,
+            ...$settings.audio // This will override defaults if settings exist
+        }
+    };
 
     function handleSave() {
-        settings.set(tempSettings);  // Apply all changes at once
+        settings.set(tempSettings);
         onOpenChange(false);
     }
 
     function handleCancel() {
-        tempSettings = { ...$settings };  // Reset to original values
+        tempSettings = {
+            ...$settings,
+            audio: {
+                masterVolume: 0.7,
+                musicVolume: 0.5,
+                effectsVolume: 0.8,
+                musicEnabled: true,
+                effectsEnabled: true,
+                ...$settings.audio
+            }
+        };
         onOpenChange(false);
     }
 
     // Reset temp settings when dialog opens
     $: if (open) {
-        tempSettings = { ...$settings };
+        tempSettings = {
+            ...$settings,
+            audio: {
+                masterVolume: 0.7,
+                musicVolume: 0.5,
+                effectsVolume: 0.8,
+                musicEnabled: true,
+                effectsEnabled: true,
+                ...$settings.audio
+            }
+        };
     }
 
-    // Pause game when dialog opens
-    $: if (open) {
+    // Pause game when dialog opens during gameplay
+    $: if (open && $gameState.isPlaying) {
         gameState.update(state => ({ ...state, isPaused: true }));
-    } else {
-        gameState.update(state => ({ ...state, isPaused: false }));
+    }
+
+    // Helper for toggling audio
+    function toggleMusic() {
+        tempSettings = {
+            ...tempSettings,
+            audio: {
+                ...tempSettings.audio,
+                musicEnabled: !tempSettings.audio.musicEnabled
+            }
+        };
+    }
+
+    function toggleEffects() {
+        tempSettings = {
+            ...tempSettings,
+            audio: {
+                ...tempSettings.audio,
+                effectsEnabled: !tempSettings.audio.effectsEnabled
+            }
+        };
     }
 </script>
 
@@ -44,25 +95,6 @@
         </DialogHeader>
 
         <div class="grid gap-4 py-4">
-            <!-- Game Mode -->
-            <div class="grid grid-cols-4 items-center gap-4">
-                <Label class="text-right">Game Mode</Label>
-                <div class="col-span-3">
-                    <Select 
-                        value={tempSettings.gameMode}
-                        onValueChange={(value: 'single' | 'local-multiplayer') => tempSettings.gameMode = value}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select game mode" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="single">Single Player</SelectItem>
-                            <SelectItem value="local-multiplayer">Local Multiplayer</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
             <!-- Player Speed -->
             <div class="grid grid-cols-4 items-center gap-4">
                 <Label class="text-right">Speed</Label>
@@ -90,39 +122,105 @@
                 />
             </div>
 
-            {#if $settings.gameMode === 'local-multiplayer'}
-                <div class="grid grid-cols-4 items-center gap-4">
-                    <Label class="text-right">Player 2 Color</Label>
-                    <Input 
-                        type="color" 
-                        value={$settings.player2Color}
-                        on:input={(e) => $settings.player2Color = e.currentTarget.value}
-                        class="col-span-3 h-10 px-3"
-                    />
-                </div>
-            {/if}
-
-            <!-- Power-Ups Section -->
             <div class="grid grid-cols-4 items-center gap-4">
-                <Label class="text-right">Power-Ups</Label>
-                <Switch 
-                    checked={$settings.powerUpsEnabled}
-                    onCheckedChange={(checked: boolean) => $settings.powerUpsEnabled = checked}
-                    class="col-span-3"
+                <Label class="text-right">Player 2 Color</Label>
+                <Input 
+                    type="color" 
+                    value={tempSettings.player2Color}
+                    on:input={(e) => tempSettings.player2Color = e.currentTarget.value}
+                    class="col-span-3 h-10 px-3"
                 />
             </div>
 
-            {#if $settings.powerUpsEnabled}
-                <div class="grid grid-cols-4 items-center gap-4">
-                    <Label class="text-right">Speed Boost</Label>
-                    <Switch 
-                        checked={$settings.powerUps.speedBoost}
-                        onCheckedChange={(checked: boolean) => $settings.powerUps.speedBoost = checked}
-                        class="col-span-3"
+            <!-- Audio Settings Section -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold">Audio</h3>
+                
+                <!-- Master Volume -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="master-volume">Master Volume</label>
+                        <span>{Math.round(tempSettings.audio.masterVolume * 100)}%</span>
+                    </div>
+                    <Slider 
+                        id="master-volume"
+                        value={[tempSettings.audio.masterVolume * 100]} 
+                        onValueChange={([value]) => {
+                            tempSettings = {
+                                ...tempSettings,
+                                audio: { ...tempSettings.audio, masterVolume: value / 100 }
+                            };
+                        }}
+                        max={100}
+                        step={1}
+                        class="w-full"
                     />
                 </div>
-                <!-- Add other power-ups here -->
-            {/if}
+
+                <!-- Music Controls -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="music-volume">Music Volume</label>
+                        <TronButton 
+                            variant="icon"
+                            title={tempSettings.audio.musicEnabled ? "Mute Music" : "Unmute Music"}
+                            on:click={toggleMusic}
+                        >
+                            {#if tempSettings.audio.musicEnabled}
+                                <Volume2 class="w-4 h-4" />
+                            {:else}
+                                <VolumeX class="w-4 h-4" />
+                            {/if}
+                        </TronButton>
+                    </div>
+                    <Slider 
+                        id="music-volume"
+                        value={[tempSettings.audio.musicVolume * 100]}
+                        onValueChange={([value]) => {
+                            tempSettings = {
+                                ...tempSettings,
+                                audio: { ...tempSettings.audio, musicVolume: value / 100 }
+                            };
+                        }}
+                        max={100}
+                        step={1}
+                        class="w-full {!tempSettings.audio.musicEnabled ? 'opacity-50' : ''}"
+                        disabled={!tempSettings.audio.musicEnabled}
+                    />
+                </div>
+
+                <!-- Effects Controls -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="effects-volume">Effects Volume</label>
+                        <TronButton 
+                            variant="icon"
+                            title={tempSettings.audio.effectsEnabled ? "Mute Effects" : "Unmute Effects"}
+                            on:click={toggleEffects}
+                        >
+                            {#if tempSettings.audio.effectsEnabled}
+                                <Volume2 class="w-4 h-4" />
+                            {:else}
+                                <VolumeX class="w-4 h-4" />
+                            {/if}
+                        </TronButton>
+                    </div>
+                    <Slider 
+                        id="effects-volume"
+                        value={[tempSettings.audio.effectsVolume * 100]}
+                        onValueChange={([value]) => {
+                            tempSettings = {
+                                ...tempSettings,
+                                audio: { ...tempSettings.audio, effectsVolume: value / 100 }
+                            };
+                        }}
+                        max={100}
+                        step={1}
+                        class="w-full"
+                        disabled={!tempSettings.audio.effectsEnabled}
+                    />
+                </div>
+            </div>
         </div>
 
         <div class="flex justify-end gap-4 mt-4">

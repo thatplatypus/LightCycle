@@ -22,6 +22,10 @@ const config = {
 		paths: {
             base: dev ? '' : process.env.BASE_PATH,
         },
+		ssr: false,
+		prerender: {
+			enabled: false,
+		},
 	}
 };
 

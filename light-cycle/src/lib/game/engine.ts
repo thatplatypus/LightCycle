@@ -92,70 +92,57 @@ export class GameEngine {
         );
     }
 
-    private gameLoop = (delta: number): void => {
+    private gameLoop = (deltaTime: PIXI.Ticker): void => {
+        if (!this.player1) return; // Early return if game isn't properly initialized
+        
+        const delta = deltaTime.deltaTime;
         const gameStateValue = get(gameState);
-        if (gameStateValue.isPaused) return;
+        if (gameStateValue.isPaused || gameStateValue.gameOver) return;
 
         let collision = false;
         
-        // Update both players
-        if (this.player1) {
-            collision = this.player1.update(delta);
-            
-            // Check player 1 collisions
-            if (collision) {
-                // Player 1 hit their own trail
-                this.handleGameOver('player2');
-                return;
-            }
-            
-            if (this.checkBoundaryCollision(this.player1)) {
-                this.handleGameOver('player2');
-                return;
-            }
-
-            // Check if player 1 hit player 2's trail
-            if (this.player2?.checkCollisionWithPoint(this.player1.getPosition())) {
-                this.handleGameOver('player2');
-                return;
-            }
+        // Update player 1
+        collision = this.player1.update(delta);
+        if (collision || this.checkBoundaryCollision(this.player1)) {
+            this.handleGameOver('player2');
+            return;
         }
 
+        // Update player 2 only if it exists
         if (this.player2) {
             collision = this.player2.update(delta);
-            
-            // Check player 2 collisions
-            if (collision) {
-                // Player 2 hit their own trail
-                this.handleGameOver('player1');
-                return;
-            }
-            
-            if (this.checkBoundaryCollision(this.player2)) {
+            if (collision || this.checkBoundaryCollision(this.player2)) {
                 this.handleGameOver('player1');
                 return;
             }
 
-            // Check if player 2 hit player 1's trail
-            if (this.player1?.checkCollisionWithPoint(this.player2.getPosition())) {
+            // Check cross-collisions
+            if (this.player2.checkCollisionWithPoint(this.player1.getPosition())) {
+                this.handleGameOver('player2');
+                return;
+            }
+            if (this.player1.checkCollisionWithPoint(this.player2.getPosition())) {
                 this.handleGameOver('player1');
                 return;
             }
 
-            // Only check for head-on collisions after all other checks
-            const p1Pos = this.player1?.getPosition();
-            const p2Pos = this.player2.getPosition();
-            if (p1Pos) {
-                const dx = p1Pos.x - p2Pos.x;
-                const dy = p1Pos.y - p2Pos.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 10) {  // Head-on collision
-                    this.handleGameOver('draw');
-                    return;
-                }
+            // Head-on collision check
+            if (this.checkHeadOnCollision()) {
+                this.handleGameOver('draw');
+                return;
             }
         }
     };
+
+    private checkHeadOnCollision(): boolean {
+        if (!this.player1 || !this.player2) return false;
+        
+        const p1Pos = this.player1.getPosition();
+        const p2Pos = this.player2.getPosition();
+        const dx = p1Pos.x - p2Pos.x;
+        const dy = p1Pos.y - p2Pos.y;
+        return Math.sqrt(dx * dx + dy * dy) < 10;
+    }
 
     private checkPlayerCollision(): boolean {
         if (!this.player1 || !this.player2) return false;
@@ -273,19 +260,34 @@ export class GameEngine {
     }
 
     public stopGame(): void {
+        // Remove event listeners
+        window.removeEventListener('keydown', this.handleKeydown);
+        window.removeEventListener('resize', this.handleResize);
+
+        // Stop the game loop
         if (this.app?.ticker) {
             this.app.ticker.remove(this.gameLoop);
         }
+        
+        // Clean up players
         if (this.player1) {
-            this.player1.destroy();  // Clean up subscriptions
+            this.player1.destroy();
             this.player1 = null;
         }
         if (this.player2) {
-            this.player2.destroy();  // Clean up subscriptions
+            this.player2.destroy();
             this.player2 = null;
         }
+        
+        // Clear game container
         if (this.gameContainer) {
             this.gameContainer.removeChildren();
+        }
+
+        // Destroy PIXI application
+        if (this.app) {
+            this.app.destroy(true, { children: true, texture: true, baseTexture: true });
+            this.app = null as any;
         }
     }
 
