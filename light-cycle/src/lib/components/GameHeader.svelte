@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { gameState, restartGame } from '$lib/stores/game-state';
+    import { gameState, restartGame, cleanupGame } from '$lib/stores/game-state';
     import TronButton from '$lib/components/ui/tron-button.svelte';
     import { Settings, Pause, Play, Home, RefreshCw } from 'lucide-svelte';
     import SettingsDialog from './SettingsDialog.svelte';
@@ -31,6 +31,9 @@
     }
 
     function returnToMenu() {
+        // First cleanup the game state
+        cleanupGame();
+        // Then update the game state to return to menu
         gameState.set({
             isPlaying: false,
             isPaused: false,

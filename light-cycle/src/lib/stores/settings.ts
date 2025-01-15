@@ -1,4 +1,6 @@
 import { writable } from 'svelte/store';
+import { browser } from "$app/environment"
+
 
 interface GameSettings {
     gameMode: 'single' | 'local-multiplayer';
@@ -26,6 +28,13 @@ interface GameSettings {
             right: string;
         };
     };
+    audio: {
+        masterVolume: number;
+        musicVolume: number;
+        effectsVolume: number;
+        musicEnabled: boolean;
+        effectsEnabled: boolean;
+    };
 }
 
 const defaultSettings: GameSettings = {
@@ -52,11 +61,18 @@ const defaultSettings: GameSettings = {
             left: 'a',
             right: 'd'
         }
+    },
+    audio: {
+        masterVolume: 0.7,
+        musicVolume: 0.5,
+        effectsVolume: 0.8,
+        musicEnabled: true,
+        effectsEnabled: true
     }
 };
 
 // Load initial settings from localStorage or use defaults
-const storedSettings = localStorage.getItem('lightCycleSettings');
+const storedSettings = browser ? localStorage.getItem('lightCycleSettings') : null;
 const initialSettings: GameSettings = storedSettings 
     ? JSON.parse(storedSettings)
     : defaultSettings;
@@ -65,5 +81,7 @@ export const settings = writable<GameSettings>(initialSettings);
 
 // Subscribe to settings changes and save to localStorage
 settings.subscribe(value => {
+    if(!browser) return;
+    
     localStorage.setItem('lightCycleSettings', JSON.stringify(value));
 }); 
