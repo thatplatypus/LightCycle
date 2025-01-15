@@ -577,7 +577,44 @@ video {
   --radius: 0.5rem;
   background-color: black;
   color-scheme: dark;
+  --grid-color: #01D5DA;
+  --grid-size: 64px;
+  --line-width: 2px;
+  --line-spread: 6px;
 }
+
+/* Add the grid background */
+
+/* Light wall effects */
+
+@keyframes flyIn {
+  from {
+    transform: translateY(-250px);
+  }
+
+  to {
+    transform: rotateX(12deg);
+  }
+}
+
+@keyframes lightWall {
+  0% {
+    opacity: 0;
+    width: 0;
+  }
+
+  5%, 50% {
+    opacity: 1;
+    width: 100%;
+  }
+
+  100% {
+    opacity: 0;
+    width: 100%;
+  }
+}
+
+/* Make sure the grid container takes full viewport */
 
 html {
   background-color: black;
@@ -589,11 +626,6 @@ body {
 }
 
 /* Add these utility classes */
-
-.glow-primary {
-  box-shadow: 0 0 10px hsl(var(--primary) / 1), 
-                0 0 20px hsl(var(--primary) / 50);
-}
 
 .glow-text {
   text-shadow: 0 0 10px hsl(var(--primary) / 1),
@@ -691,6 +723,14 @@ body {
   z-index: 50;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
+.z-20 {
+  z-index: 20;
+}
+
 .col-span-3 {
   grid-column: span 3 / span 3;
 }
@@ -747,10 +787,6 @@ body {
 
 .h-11 {
   height: 2.75rem;
-}
-
-.h-12 {
-  height: 3rem;
 }
 
 .h-16 {
@@ -1235,6 +1271,12 @@ body {
   transition-duration: 150ms;
 }
 
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .transition-colors {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1253,19 +1295,39 @@ body {
   transition-duration: 150ms;
 }
 
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
 .duration-200 {
   transition-duration: 200ms;
 }
 
-.hover\:glow-primary:hover {
-  box-shadow: 0 0 10px hsl(var(--primary) / 1), 
-                0 0 20px hsl(var(--primary) / 50);
+/* Add this after your existing CSS */
+
+.game-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: black;
+  background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
+}
+
+/* Add a subtle glow effect */
+
+.game-background::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, 
+        rgba(0, 255, 255, 0.1) 0%, 
+        transparent 60%);
+  pointer-events: none;
 }
 
 .hover\:glow-border:hover {

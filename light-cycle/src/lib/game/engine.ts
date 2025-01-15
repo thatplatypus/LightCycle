@@ -3,6 +3,7 @@ import { Player, Direction } from './player';
 import { get } from 'svelte/store';
 import { gameState } from '$lib/stores/game-state';
 import { settings } from '$lib/stores/settings';
+import { GlowFilter } from '@pixi/filter-glow';
 
 export class GameEngine {
     private app!: PIXI.Application;
@@ -27,23 +28,21 @@ export class GameEngine {
             powerPreference: 'high-performance'
         });
 
+        // Enable sorting on stage
+        this.app.stage.sortableChildren = true;
+
+        // Draw background grid
+        this.drawBackground();
+
+        // Create game container
+        this.gameContainer = new PIXI.Container();
+        this.gameContainer.sortableChildren = true;
+        this.gameContainer.zIndex = 1;
+        this.app.stage.addChild(this.gameContainer);
+
         // Debug: Log renderer info
         console.log('Renderer:', this.app.renderer.type);
         console.log('Canvas size:', this.app.renderer.width, 'x', this.app.renderer.height);
-
-        this.gameContainer = new PIXI.Container();
-        this.gameContainer.sortableChildren = true;  // Enable z-index sorting
-        this.app.stage.addChild(this.gameContainer);
-
-        // Add debug background to verify container position
-        const debugBackground = new PIXI.Graphics()
-            .fill({ color: 0x111111 })
-            .rect(0, 0, this.app.renderer.width, this.app.renderer.height);
-        debugBackground.zIndex = -1;
-        this.gameContainer.addChild(debugBackground);
-
-        // Draw the grid with low z-index
-        this.drawGrid();
 
         // Handle resize
         window.addEventListener('resize', this.handleResize.bind(this));
@@ -290,28 +289,57 @@ export class GameEngine {
         }
     }
 
-    private drawGrid(): void {
+    private drawBackground() {
         const grid = new PIXI.Graphics();
-        grid.lineStyle(1, 0x1a1a1a, 0.3);
-        grid.zIndex = 0;  // Set grid to be behind everything
+        grid.zIndex = -1;
         
-        const cellSize = 40;
-        const width = this.app.renderer.screen.width;
-        const height = this.app.renderer.screen.height;
-        
+        const gridSize = 40;  // Slightly smaller grid
+        const width = this.app.screen.width;
+        const height = this.app.screen.height;
+
+        // Draw base grid lines
+        grid.stroke({ 
+            width: 1,
+            color: 0x00FFFF,
+            alpha: 0.2,        // More subtle base grid
+            alignment: 0.5,
+            native: true
+        });
+
         // Draw vertical lines
-        for (let x = 0; x <= width; x += cellSize) {
+        for (let x = 0; x <= width; x += gridSize) {
             grid.moveTo(x, 0);
             grid.lineTo(x, height);
         }
-        
+
         // Draw horizontal lines
-        for (let y = 0; y <= height; y += cellSize) {
+        for (let y = 0; y <= height; y += gridSize) {
             grid.moveTo(0, y);
             grid.lineTo(width, y);
         }
-        
-        this.gameContainer.addChild(grid);
+
+        // Draw major grid lines
+        grid.stroke({ 
+            width: 2,
+            color: 0x00FFFF,
+            alpha: 0.4,        // More visible major lines
+            alignment: 0.5,
+            native: true
+        });
+
+        // Major grid lines every 4 cells
+        for (let x = 0; x <= width; x += gridSize * 4) {
+            grid.moveTo(x, 0);
+            grid.lineTo(x, height);
+        }
+        for (let y = 0; y <= height; y += gridSize * 4) {
+            grid.moveTo(0, y);
+            grid.lineTo(width, y);
+        }
+
+        this.app.stage.addChild(grid);
+
+        // Remove debug elements now that we can see the grid
     }
 
     private handleGameOver(winner: 'player1' | 'player2' | 'draw'): void {

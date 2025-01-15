@@ -35,7 +35,90 @@
     --radius: 0.5rem;
     background-color: black;
     color-scheme: dark;
-  }
+    --grid-color: #01D5DA;
+    --grid-size: 64px;
+    --line-width: 2px;
+    --line-spread: 6px;
+}
+
+/* Add the grid background */
+.tron-grid {
+    background-color: black;
+    background-image: 
+        linear-gradient(0deg, 
+            transparent 0px, 
+            var(--grid-color) var(--line-width), 
+            transparent var(--line-spread)
+        ),
+        linear-gradient(90deg, 
+            transparent 0px, 
+            var(--grid-color) var(--line-width), 
+            transparent var(--line-spread)
+        );
+    background-size: var(--grid-size) var(--grid-size);
+    height: 200%;
+    perspective: 100px;
+    position: relative;
+    transform-origin: center top;
+    animation: flyIn 1600ms ease-in-out 300ms forwards;
+}
+
+/* Light wall effects */
+.tron-grid::before,
+.tron-grid::after {
+    content: '';
+    display: block;
+    position: absolute;
+    background: var(--grid-color);
+    height: 30px;
+    width: 200px;
+    transform: rotateX(-10deg);
+    opacity: 0;
+    top: 32px;
+    box-shadow: 0 -5px 15px var(--grid-color);
+    animation: lightWall 5s ease-in 2000ms forwards;
+}
+
+.tron-grid::after {
+    right: 0;
+    height: 50px;
+    top: 282px;
+    box-shadow: 0 -10px 50px 2px var(--grid-color);
+    animation: lightWall 5s ease-in 3200ms forwards;
+}
+
+@keyframes flyIn {
+    from {
+        transform: translateY(-250px);
+    }
+    to {
+        transform: rotateX(12deg);
+    }
+}
+
+@keyframes lightWall {
+    0% {
+        opacity: 0;
+        width: 0;
+    }
+    5%, 50% {
+        opacity: 1;
+        width: 100%;
+    }
+    100% {
+        opacity: 0;
+        width: 100%;
+    }
+}
+
+/* Make sure the grid container takes full viewport */
+.grid-container {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    perspective: 100px;
+}
+ 
 
 html {
     background-color: black;
@@ -61,5 +144,35 @@ body {
     box-shadow: inset 0 0 10px theme('colors.primary.DEFAULT/50'),
                 0 0 10px theme('colors.primary.DEFAULT/30');
 } 
+}
+ 
+
+/* Add this after your existing CSS */
+.game-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: black;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+/* Add a subtle glow effect */
+.game-background::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, 
+        rgba(0, 255, 255, 0.1) 0%, 
+        transparent 60%);
+    pointer-events: none;
 }
  

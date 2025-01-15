@@ -36,16 +36,30 @@
 </script>
 
 <main class="w-full h-screen bg-black relative">
+    <!-- Background grid -->
+    <div class="absolute inset-0 game-background" />
+
     {#if error}
-        <div class="text-red-500 p-4">
+        <div class="text-red-500 p-4 relative z-20">
             {error}
         </div>
     {/if}
+
     {#key key}
         <canvas
             bind:this={canvas}
-            class="w-full h-full"
+            class="w-full h-full relative z-10"
             transition:fade={{ duration: 150 }}
         />
     {/key}
 </main>
+
+<style>
+.game-background {
+    background-color: black;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+</style>

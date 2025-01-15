@@ -3,7 +3,7 @@ const DEBUG = import.meta.env.DEV;
 export const debug = {
     log: (...args: any[]) => {
         if (DEBUG) {
-            console.log(...args);
+            //console.log(...args);
         }
     },
     warn: (...args: any[]) => {
