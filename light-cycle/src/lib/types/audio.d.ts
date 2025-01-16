@@ -1,13 +1,14 @@
 export interface AudioClip {
-    buffer: AudioBuffer;
-    source?: AudioBufferSourceNode;
-    gainNode?: GainNode;
-    isPlaying?: boolean;
+    name: string;
+    path: string;
+    type: 'music' | 'effect';
+    baseVolume: number;
+    loop?: boolean;
 }
 
 export interface AudioState {
     backgroundMusicStarted: boolean;
-    currentTrack?: string;
+    gameAudioStarted: boolean;
 }
 
 export type AudioClipName = 

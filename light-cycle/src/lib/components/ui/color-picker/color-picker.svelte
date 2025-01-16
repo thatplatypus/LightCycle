@@ -1,5 +1,6 @@
 <script lang="ts">
     import { cn } from "$lib/utils";
+    import { debug } from '$lib/utils/debug';
     
     export let value: string = "#000000";
     export let label: string = "";
@@ -10,14 +11,23 @@
     let inputElement: HTMLInputElement;
 
     function handleClick() {
-        console.log('Clicking input');
+        debug.log('[ColorPicker] Click detected');
         inputElement?.click();
+    }
+
+    function handleInputClick(event: Event) {
+        debug.log('[ColorPicker] Input clicked', event);
     }
 </script>
 
 <div class={cn("relative flex items-center gap-4", className)}>
     {#if label}
-        <label class="text-cyan-400 min-w-32">{label}</label>
+        <label 
+            class="text-cyan-400 min-w-32 cursor-pointer hover:text-cyan-300 transition-colors"
+            on:click={handleClick}
+        >
+            {label}
+        </label>
     {/if}
     
     <!-- Make the whole container clickable -->
@@ -57,6 +67,7 @@
             class="sr-only"
             on:focus={() => isActive = true}
             on:blur={() => isActive = false}
+            on:click={handleInputClick}
         />
             
         <!-- Click indicator -->

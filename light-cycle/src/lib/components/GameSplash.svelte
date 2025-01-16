@@ -10,9 +10,12 @@
     import { onMount } from 'svelte';
     import { audioManager } from '$lib/audio/manager';
     import { audioState } from '$lib/stores/audio-state';
+    import { isTouchDevice } from '$lib/utils/device';
 
     let showSettings = false;
     let audioInitialized = false;
+
+    const isTouch = isTouchDevice();
 
     onMount(async () => {
         try {
@@ -72,8 +75,14 @@
             <TronButton 
                 variant="large"
                 on:click={() => startGame('local-multiplayer')}
+                disabled={isTouch}
+                class={isTouch ? 'opacity-70' : ''}
             >
-                Local Multiplayer
+                {#if isTouch}
+                    Local Multiplayer (Desktop Only)
+                {:else}
+                    Local Multiplayer
+                {/if}
             </TronButton>
             
             <TronButton 
