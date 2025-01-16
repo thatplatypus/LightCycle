@@ -5,7 +5,8 @@
     export let value: string = "#000000";
     export let label: string = "";
     export let className: string = undefined;
-
+    
+    let id = crypto.randomUUID();
     let isActive = false;
     let isHovered = false;
     let inputElement: HTMLInputElement;
@@ -23,6 +24,7 @@
 <div class={cn("relative flex items-center gap-4", className)}>
     {#if label}
         <label 
+            for={id}
             class="text-cyan-400 min-w-32 cursor-pointer hover:text-cyan-300 transition-colors"
             on:click={handleClick}
         >
@@ -63,6 +65,7 @@
         <input
             bind:this={inputElement}
             type="color"
+            id={id}
             bind:value
             class="sr-only"
             on:focus={() => isActive = true}
