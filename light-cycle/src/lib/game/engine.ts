@@ -4,6 +4,7 @@ import { get } from 'svelte/store';
 import { gameState } from '$lib/stores/game-state';
 import { settings } from '$lib/stores/settings';
 import { GlowFilter } from '@pixi/filter-glow';
+import { TouchController } from './touch-controller';
 
 export class GameEngine {
     private app!: PIXI.Application;
@@ -11,6 +12,7 @@ export class GameEngine {
     private player1: Player | null = null;
     private player2: Player | null = null;
     private initialized = false;
+    private touchController: TouchController;
 
     constructor(canvas: HTMLCanvasElement) {
         this.initializeApp(canvas);
@@ -49,6 +51,12 @@ export class GameEngine {
         
         // Handle keyboard input
         window.addEventListener('keydown', this.handleKeydown.bind(this));
+
+        // Initialize touch controls
+        this.touchController = new TouchController(
+            this.app.view as HTMLCanvasElement,
+            this.handleSwipe.bind(this)
+        );
 
         this.initialized = true;
     }
@@ -289,6 +297,8 @@ export class GameEngine {
             this.app.destroy(true, { children: true, texture: true, baseTexture: true });
             this.app = null as any;
         }
+
+        this.touchController?.destroy();
     }
 
     private lerpColor(color1: number, color2: number, t: number): number {
@@ -386,5 +396,27 @@ export class GameEngine {
             gameOver: true,
             winner
         });
+    }
+
+    private handleSwipe(direction: 'up' | 'down' | 'left' | 'right') {
+        const currentSettings = get(settings);
+        
+        // Map swipe directions to player movements
+        if (this.player1) {
+            switch (direction) {
+                case 'up':
+                    this.player1.setDirection(Direction.UP);
+                    break;
+                case 'right':
+                    this.player1.setDirection(Direction.RIGHT);
+                    break;
+                case 'down':
+                    this.player1.setDirection(Direction.DOWN);
+                    break;
+                case 'left':
+                    this.player1.setDirection(Direction.LEFT);
+                    break;
+            }
+        }
     }
 } 

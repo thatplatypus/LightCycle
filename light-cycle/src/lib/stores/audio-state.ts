@@ -1,9 +1,5 @@
 import { writable } from 'svelte/store';
-
-interface AudioState {
-    backgroundMusicStarted: boolean;
-    gameAudioStarted: boolean;
-}
+import type { AudioState } from '$lib/types/audio';
 
 export const audioState = writable<AudioState>({
     backgroundMusicStarted: false,

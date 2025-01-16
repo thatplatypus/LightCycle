@@ -1,30 +1,24 @@
 import { get } from 'svelte/store';
 import { settings } from '$lib/stores/settings';
 import { browser } from "$app/environment";
-
-type AudioClip = {
-    name: string;
-    path: string;
-    type: 'music' | 'effect';
-    baseVolume: number;
-    loop?: boolean;
-};
+import type { AudioClip, AudioClipName } from '$lib/types/audio';
+import { base } from '$app/paths';
 
 const AUDIO_FILES: AudioClip[] = [
     // Background music
-    { name: 'background', path: '/audio/background.mp3', type: 'music', baseVolume: 0.5 },
-    { name: 'gameplay', path: '/audio/gameplay.mp3', type: 'music', baseVolume: 0.5 },
-    { name: 'gameplay-multiplayer', path: '/audio/gameplay-local-multiplayer.mp3', type: 'music', baseVolume: 0.5 },
+    { name: 'background', path: `${base}/audio/background.mp3`, type: 'music', baseVolume: 0.5 },
+    { name: 'gameplay', path: `${base}/audio/gameplay.mp3`, type: 'music', baseVolume: 0.5 },
+    { name: 'gameplay-multiplayer', path: `${base}/audio/gameplay-local-multiplayer.mp3`, type: 'music', baseVolume: 0.5 },
     
     // Sound effects
-    { name: 'lightcycle', path: '/audio/lightcycle.mp3', type: 'effect', baseVolume: 0.3, loop: true },
+    { name: 'lightcycle', path: `${base}/audio/lightcycle.mp3`, type: 'effect', baseVolume: 0.3, loop: true },
     // Derezz sounds
-    { name: 'derezz-1', path: '/audio/derezz-1.mp3', type: 'effect', baseVolume: 0.7 },
-    { name: 'derezz-2', path: '/audio/derezz-2.mp3', type: 'effect', baseVolume: 0.7 },
-    { name: 'derezz-3', path: '/audio/derezz-3.mp3', type: 'effect', baseVolume: 0.7 },
-    { name: 'derezz-4', path: '/audio/derezz-4.mp3', type: 'effect', baseVolume: 0.7 },
-    { name: 'derezz-5', path: '/audio/derezz-5.mp3', type: 'effect', baseVolume: 0.7 },
-    { name: 'derezz-6', path: '/audio/derezz-6.mp3', type: 'effect', baseVolume: 0.7 },
+    { name: 'derezz-1', path: `${base}/audio/derezz-1.mp3`, type: 'effect', baseVolume: 0.7 },
+    { name: 'derezz-2', path: `${base}/audio/derezz-2.mp3`, type: 'effect', baseVolume: 0.7 },
+    { name: 'derezz-3', path: `${base}/audio/derezz-3.mp3`, type: 'effect', baseVolume: 0.7 },
+    { name: 'derezz-4', path: `${base}/audio/derezz-4.mp3`, type: 'effect', baseVolume: 0.7 },
+    { name: 'derezz-5', path: `${base}/audio/derezz-5.mp3`, type: 'effect', baseVolume: 0.7 },
+    { name: 'derezz-6', path: `${base}/audio/derezz-6.mp3`, type: 'effect', baseVolume: 0.7 },
 ];
 
 class AudioManager {
@@ -32,16 +26,12 @@ class AudioManager {
     private initialized = false;
     private currentMusic: string | null = null;
     private unsubscribe: (() => void) | null = null;
-    private context: AudioContext | null = null;
 
     async init() {
         if (!browser || this.initialized) return;
 
         try {
             console.log('[AudioManager] Initializing...');
-            
-            // Create audio context
-            this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
             
             console.log('[AudioManager] Loading audio files:', AUDIO_FILES.map(f => f.name));
             
@@ -56,15 +46,6 @@ class AudioManager {
                 
                 this.updateVolume(audio, clip);
                 this.clips.set(clip.name, audio);
-
-                // Connect to audio context
-                const source = this.context.createMediaElementSource(audio);
-                source.connect(this.context.destination);
-            }
-
-            // Resume audio context if suspended
-            if (this.context.state === 'suspended') {
-                await this.context.resume();
             }
 
             // Wait for all clips to load

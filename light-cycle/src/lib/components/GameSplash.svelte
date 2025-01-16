@@ -15,35 +15,20 @@
     let audioInitialized = false;
 
     onMount(async () => {
-        if (!audioInitialized) {
-            try {
-                console.log('[GameSplash] Initializing audio...');
-                await audioManager.init();
-                audioInitialized = true;
-                
-                // Small delay to ensure audio context is ready
-                setTimeout(() => {
-                    console.log('[GameSplash] Starting background music...');
-                    audioManager.playMusic('background');
-                    audioState.update(s => ({ ...s, backgroundMusicStarted: true }));
-                }, 100);
-            } catch (error) {
-                console.error('[GameSplash] Failed to initialize audio:', error);
-            }
+        try {
+            console.log('[GameSplash] Initializing audio...');
+            await audioManager.init();
+            audioInitialized = true;
+            
+            console.log('[GameSplash] Starting background music...');
+            audioManager.playMusic('background');
+            audioState.update(s => ({ ...s, backgroundMusicStarted: true }));
+        } catch (error) {
+            console.error('[GameSplash] Failed to initialize audio:', error);
         }
     });
 
     async function startGame(mode: 'single' | 'local-multiplayer' | 'ai') {
-        // Make sure audio is initialized before starting game
-        if (!audioInitialized) {
-            try {
-                await audioManager.init();
-                audioInitialized = true;
-            } catch (error) {
-                console.error('[GameSplash] Failed to initialize audio:', error);
-            }
-        }
-
         settings.update(s => ({
             ...s,
             gameMode: mode === 'ai' ? 'single' : mode
