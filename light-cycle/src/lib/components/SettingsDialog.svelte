@@ -9,6 +9,7 @@
     import { gameState } from '$lib/stores/game-state';
     import TronButton from './ui/tron-button.svelte';
     import { Volume2, VolumeX } from 'lucide-svelte';
+    import { ColorPicker } from "$lib/components/ui/color-picker";
 
     export let open = false;
     export let onOpenChange: (open: boolean) => void;
@@ -112,23 +113,14 @@
             </div>
 
             <!-- Player Colors -->
-            <div class="grid grid-cols-4 items-center gap-4">
-                <Label class="text-right">Player 1 Color</Label>
-                <Input 
-                    type="color" 
-                    value={tempSettings.player1Color}
-                    on:input={(e) => tempSettings.player1Color = e.currentTarget.value}
-                    class="col-span-3 h-10 px-3"
+            <div class="space-y-6">
+                <ColorPicker 
+                    bind:value={$settings.player1Color} 
+                    label="Player 1 Color"
                 />
-            </div>
-
-            <div class="grid grid-cols-4 items-center gap-4">
-                <Label class="text-right">Player 2 Color</Label>
-                <Input 
-                    type="color" 
-                    value={tempSettings.player2Color}
-                    on:input={(e) => tempSettings.player2Color = e.currentTarget.value}
-                    class="col-span-3 h-10 px-3"
+                <ColorPicker 
+                    bind:value={$settings.player2Color} 
+                    label="Player 2 Color"
                 />
             </div>
 
