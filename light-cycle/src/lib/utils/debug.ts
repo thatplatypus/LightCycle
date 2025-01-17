@@ -1,21 +1,14 @@
-import { writable } from 'svelte/store';
-
-const debugStore = writable<string[]>([]);
+const DEBUG = import.meta.env.DEV;
 
 export const debug = {
     log: (...args: any[]) => {
-        const msg = args.map(arg => 
-            typeof arg === 'object' ? JSON.stringify(arg) : arg
-        ).join(' ');
-        console.log(msg);
-        debugStore.update(msgs => [...msgs, msg]);
+        if (DEBUG) {
+            console.log(...args);
+        }
     },
     error: (...args: any[]) => {
-        const msg = args.map(arg => 
-            typeof arg === 'object' ? JSON.stringify(arg) : arg
-        ).join(' ');
-        console.error(msg);
-        debugStore.update(msgs => [...msgs, `ERROR: ${msg}`]);
-    },
-    subscribe: debugStore.subscribe
+        if (DEBUG) {
+            console.error(...args);
+        }
+    }
 }; 
