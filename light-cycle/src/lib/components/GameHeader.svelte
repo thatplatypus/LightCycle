@@ -51,7 +51,12 @@
     });
 </script>
 
-<header class="fixed top-0 left-0 right-0 p-4 flex justify-between items-center z-50">
+<header 
+    class="fixed top-0 left-0 right-0 p-4 
+        flex justify-between items-center z-50 
+        backdrop-blur-sm
+        shadow-[0_0_0.75em_0.1em_rgb(34,211,238,0.8)] headerGlow"
+>
     <div class="flex items-center gap-4">
         <TronButton title="Main Menu" on:click={returnToMenu}>
             <Home class="w-4 h-4" />
@@ -69,7 +74,7 @@
         {/if}
         {#if get(settings).gameMode === 'single'}
             <div class="text-3xl font-mono text-primary">
-                {$gameState.score}
+                Score {$gameState.score}
             </div>
         {/if}
     </div>
@@ -92,6 +97,17 @@
         </TronButton>
     </div>
 </header>
+
+<style>
+    header {
+        animation: headerGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes headerGlow {
+        0%, 100% { box-shadow: 0 0 0.75em 0.1em rgb(34 211 238 / 0.7); }
+        50% { box-shadow: 0 0 1em 0.15em rgb(34 211 238 / 0.95); }
+    }
+</style>
 
 <SettingsDialog 
     open={showSettings}

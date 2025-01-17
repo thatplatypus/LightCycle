@@ -5,12 +5,13 @@
     import { get } from 'svelte/store';
     import SettingsDialog from './SettingsDialog.svelte';
     import TronButton from './ui/tron-button.svelte';
-    import { Settings } from 'lucide-svelte';
+    import { Settings, Github } from 'lucide-svelte';
     import TronGrid from './TronGrid.svelte';
     import { onMount } from 'svelte';
     import { audioManager } from '$lib/audio/manager';
     import { audioState } from '$lib/stores/audio-state';
     import { isTouchDevice } from '$lib/utils/device';
+    import LinkButton from './ui/link-button.svelte';
 
     let showSettings = false;
     let audioInitialized = false;
@@ -52,7 +53,16 @@
 <div class="fixed inset-0 flex items-center justify-center z-0">
     <TronGrid />
     
-    <div class="absolute top-4 right-4 z-10">
+    <div class="absolute top-4 right-4 z-10 flex gap-2">
+        <LinkButton 
+            title="View Source on GitHub"
+            href="https://github.com/thatplatypus/LightCycle"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <Github class="w-4 h-4" />
+        </LinkButton>
+
         <TronButton 
             title="Settings"
             on:click={() => showSettings = true}
