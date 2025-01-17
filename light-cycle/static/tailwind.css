@@ -2118,6 +2118,10 @@ body {
 }
 
 @media (min-width: 640px) {
+  .sm\:hidden {
+    display: none;
+  }
+
   .sm\:max-w-\[425px\] {
     max-width: 425px;
   }
@@ -2146,6 +2150,10 @@ body {
 }
 
 @media (min-width: 768px) {
+  .md\:flex {
+    display: flex;
+  }
+
   .md\:w-full {
     width: 100%;
   }

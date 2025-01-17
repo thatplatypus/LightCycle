@@ -61,7 +61,7 @@
         <TronButton title="Main Menu" on:click={returnToMenu}>
             <Home class="w-4 h-4" />
         </TronButton>
-        <div class="text-2xl font-bold text-primary">
+        <div class="text-2xl font-bold text-primary hidden md:flex">
             Light Cycle
         </div>
     </div>
@@ -73,8 +73,11 @@
             </div>
         {/if}
         {#if get(settings).gameMode === 'single'}
+        <div class="text-3xl font-mono text-primary hidden md:flex">
+                Score
+            </div>
             <div class="text-3xl font-mono text-primary">
-                Score {$gameState.score}
+                {$gameState.score}
             </div>
         {/if}
     </div>
