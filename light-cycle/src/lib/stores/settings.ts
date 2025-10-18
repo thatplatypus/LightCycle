@@ -2,82 +2,61 @@ import { writable } from 'svelte/store';
 import { browser } from "$app/environment"
 
 
-interface GameSettings {
-    gameMode: 'single' | 'local-multiplayer';
+export interface Settings {
     playerSpeed: number;
     player1Color: string;
     player2Color: string;
-    powerUpsEnabled: boolean;
-    powerUps: {
-        speedBoost: boolean;
-        shield: boolean;
-        ghostMode: boolean;
-        // Add more power-ups here
-    };
+    soundEnabled: boolean;
+    musicVolume: number;
+    effectsVolume: number;
+    gameMode: 'single' | 'local-multiplayer' | 'ai';
     controls: {
         player1: {
             up: string;
+            right: string;
             down: string;
             left: string;
-            right: string;
         };
         player2: {
             up: string;
+            right: string;
             down: string;
             left: string;
-            right: string;
         };
-    };
-    audio: {
-        masterVolume: number;
-        musicVolume: number;
-        effectsVolume: number;
-        musicEnabled: boolean;
-        effectsEnabled: boolean;
     };
 }
 
-const defaultSettings: GameSettings = {
-    gameMode: 'single',
+const defaultSettings: Settings = {
     playerSpeed: 5,
     player1Color: '#00ff00',
     player2Color: '#ff0000',
-    powerUpsEnabled: false,
-    powerUps: {
-        speedBoost: false,
-        shield: false,
-        ghostMode: false
-    },
+    soundEnabled: true,
+    musicVolume: 0.5,
+    effectsVolume: 0.7,
+    gameMode: 'single',
     controls: {
         player1: {
-            up: 'ArrowUp',
-            down: 'ArrowDown',
-            left: 'ArrowLeft',
-            right: 'ArrowRight'
+            up: 'w',
+            right: 'd',
+            down: 's',
+            left: 'a'
         },
         player2: {
-            up: 'w',
-            down: 's',
-            left: 'a',
-            right: 'd'
+            up: 'ArrowUp',
+            right: 'ArrowRight',
+            down: 'ArrowDown',
+            left: 'ArrowLeft'
         }
-    },
-    audio: {
-        masterVolume: 0.7,
-        musicVolume: 0.5,
-        effectsVolume: 0.8,
-        musicEnabled: true,
-        effectsEnabled: true
     }
 };
 
 // Load initial settings from localStorage or use defaults
 const storedSettings = browser ? localStorage.getItem('lightCycleSettings') : null;
-const initialSettings: GameSettings = storedSettings 
+const initialSettings: Settings = storedSettings 
     ? JSON.parse(storedSettings)
     : defaultSettings;
 
-export const settings = writable<GameSettings>(initialSettings);
+export const settings = writable<Settings>(initialSettings);
 
 // Subscribe to settings changes and save to localStorage
 settings.subscribe(value => {

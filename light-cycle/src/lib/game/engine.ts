@@ -1,7 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { Player, Direction } from './player';
+import { AIPlayer } from './ai-player-store';
 import { get } from 'svelte/store';
-import { gameState } from '$lib/stores/game-state';
+import { gameState, updatePlayer1Info, updatePlayer2Info, updateGameBounds } from '$lib/stores/game-state';
 import { settings } from '$lib/stores/settings';
 import { GlowFilter } from '@pixi/filter-glow';
 import { TouchController } from './touch-controller';
@@ -66,10 +67,19 @@ export class GameEngine {
         
         // Player 1 controls
         if (this.player1) {
-            if (event.key === settingsStore.controls.player1.up) this.player1.setDirection(Direction.UP);
-            if (event.key === settingsStore.controls.player1.right) this.player1.setDirection(Direction.RIGHT);
-            if (event.key === settingsStore.controls.player1.down) this.player1.setDirection(Direction.DOWN);
-            if (event.key === settingsStore.controls.player1.left) this.player1.setDirection(Direction.LEFT);
+            // In AI mode and single player mode, player 1 uses arrow keys
+            if (settingsStore.gameMode === 'ai' || settingsStore.gameMode === 'single') {
+                if (event.key === 'ArrowUp') this.player1.setDirection(Direction.UP);
+                if (event.key === 'ArrowRight') this.player1.setDirection(Direction.RIGHT);
+                if (event.key === 'ArrowDown') this.player1.setDirection(Direction.DOWN);
+                if (event.key === 'ArrowLeft') this.player1.setDirection(Direction.LEFT);
+            } else {
+                // In multiplayer mode, use configured controls
+                if (event.key === settingsStore.controls.player1.up) this.player1.setDirection(Direction.UP);
+                if (event.key === settingsStore.controls.player1.right) this.player1.setDirection(Direction.RIGHT);
+                if (event.key === settingsStore.controls.player1.down) this.player1.setDirection(Direction.DOWN);
+                if (event.key === settingsStore.controls.player1.left) this.player1.setDirection(Direction.LEFT);
+            }
         }
 
         // Player 2 controls (only in multiplayer)
@@ -116,6 +126,14 @@ export class GameEngine {
             return;
         }
 
+        // Update game state with player 1 info
+        updatePlayer1Info(
+            this.player1.getPosition(),
+            this.player1.direction,
+            this.player1.getTrailPoints(),
+            true
+        );
+
         // Update player 2 only if it exists
         if (this.player2) {
             collision = this.player2.update(delta);
@@ -123,6 +141,14 @@ export class GameEngine {
                 this.handleGameOver('player1');
                 return;
             }
+
+            // Update game state with player 2 info
+            updatePlayer2Info(
+                this.player2.getPosition(),
+                this.player2.direction,
+                this.player2.getTrailPoints(),
+                true
+            );
 
             // Check cross-collisions
             if (this.player2.checkCollisionWithPoint(this.player1.getPosition())) {
@@ -202,6 +228,9 @@ export class GameEngine {
         const screenHeight = this.app.renderer.screen.height;
         const screenWidth = this.app.renderer.screen.width;
 
+        // Initialize game bounds in the store
+        updateGameBounds(screenWidth, screenHeight);
+
         this.player1 = new Player(
             100,
             screenHeight / 2,
@@ -224,17 +253,38 @@ export class GameEngine {
         this.gameContainer.addChild(p1Trail);
         this.gameContainer.addChild(p1Sprite);
 
-        // Initialize and add player 2 if in multiplayer mode
-        if (settingsStore.gameMode === 'local-multiplayer') {
+        // Initialize and add player 2 if in multiplayer or AI mode
+        if (settingsStore.gameMode === 'local-multiplayer' || settingsStore.gameMode === 'ai') {
             console.log('Initializing player 2');  // Debug log
-            this.player2 = new Player(
-                screenWidth - 100,
-                screenHeight / 2,
-                settingsStore.playerSpeed,
-                Direction.LEFT,
-                settingsStore.player2Color,
-                2
-            );
+            
+            if (settingsStore.gameMode === 'ai') {
+                // Create AI player - start further from walls
+                this.player2 = new AIPlayer(
+                    screenWidth - 200, // Increased from 100 to 200
+                    screenHeight / 2,
+                    settingsStore.playerSpeed,
+                    Direction.LEFT,
+                    settingsStore.player2Color,
+                    2
+                );
+                
+                // Set AI difficulty and bounds
+                (this.player2 as AIPlayer).setDifficulty('medium');
+                (this.player2 as AIPlayer).updateGameBounds({
+                    width: screenWidth,
+                    height: screenHeight
+                });
+            } else {
+                // Create human player - start further from walls
+                this.player2 = new Player(
+                    screenWidth - 200, // Increased from 100 to 200
+                    screenHeight / 2,
+                    settingsStore.playerSpeed,
+                    Direction.LEFT,
+                    settingsStore.player2Color,
+                    2
+                );
+            }
 
             // Add player 2's graphics
             const p2ParticleContainer = this.player2.getParticleContainer();

@@ -27,6 +27,19 @@ class AudioManager {
     private currentMusic: string | null = null;
     private unsubscribe: (() => void) | null = null;
 
+    constructor() {
+        // Subscribe to settings changes
+        this.unsubscribe = settings.subscribe(newSettings => {
+            this.updateAllVolumes();
+            
+            // Handle mute state
+            const isMuted = !newSettings.soundEnabled;
+            this.clips.forEach(audio => {
+                audio.muted = isMuted;
+            });
+        });
+    }
+
     async init() {
         if (!browser || this.initialized) return;
 
@@ -71,6 +84,11 @@ class AudioManager {
     }
 
     private updateAllVolumes() {
+        const currentSettings = get(settings);
+        const isMuted = !currentSettings.soundEnabled;
+        
+        console.log('[AudioManager] Updating volumes, muted:', isMuted);
+        
         AUDIO_FILES.forEach(clip => {
             const audio = this.clips.get(clip.name);
             if (audio) {
@@ -81,28 +99,18 @@ class AudioManager {
 
     private updateVolume(audio: HTMLAudioElement, clip: AudioClip) {
         const currentSettings = get(settings);
-        const audioSettings = currentSettings.audio;
+        const isMuted = !currentSettings.soundEnabled;
         
-        if (!audioSettings) return;
+        if (isMuted) {
+            audio.muted = true;
+            return;
+        }
 
-        const baseVolume = clip.baseVolume;
-        const masterVolume = audioSettings.masterVolume ?? 0.7;
-        
+        audio.muted = false;
         if (clip.type === 'music') {
-            audio.volume = audioSettings.musicEnabled 
-                ? baseVolume * masterVolume * (audioSettings.musicVolume ?? 0.5)
-                : 0;
-            
-            // If music is disabled, pause it
-            if (!audioSettings.musicEnabled && this.currentMusic) {
-                audio.pause();
-            } else if (audioSettings.musicEnabled && this.currentMusic === clip.name && audio.paused) {
-                audio.play().catch(error => console.error('Failed to resume music:', error));
-            }
+            audio.volume = clip.baseVolume * currentSettings.musicVolume;
         } else {
-            audio.volume = audioSettings.effectsEnabled 
-                ? baseVolume * masterVolume * (audioSettings.effectsVolume ?? 0.8)
-                : 0;
+            audio.volume = clip.baseVolume * currentSettings.effectsVolume;
         }
     }
 

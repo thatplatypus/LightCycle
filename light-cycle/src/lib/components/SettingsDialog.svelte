@@ -87,6 +87,13 @@
             }
         };
     }
+
+    function toggleSound() {
+        settings.update(s => ({
+            ...s,
+            soundEnabled: !s.soundEnabled
+        }));
+    }
 </script>
 
 <Dialog {open} onOpenChange={onOpenChange}>

@@ -35,7 +35,7 @@
     async function startGame(mode: 'single' | 'local-multiplayer' | 'ai') {
         settings.update(s => ({
             ...s,
-            gameMode: mode === 'ai' ? 'single' : mode
+            gameMode: mode
         }));
 
         gameState.set({
@@ -45,7 +45,7 @@
             score: 0,
             isResetting: false,
             winner: null,
-            opponent: mode === 'local-multiplayer' ? 'human' : null
+            opponent: mode === 'local-multiplayer' ? 'human' : mode === 'ai' ? 'computer' : null
         });
     }
 </script>
@@ -98,10 +98,8 @@
             <TronButton 
                 variant="large"
                 on:click={() => startGame('ai')}
-                disabled
-                class="opacity-70"
             >
-                VS Computer (Coming Soon)
+                VS Computer
             </TronButton>
         </div>
     </div>
